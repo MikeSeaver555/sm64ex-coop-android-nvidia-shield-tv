@@ -1,0 +1,43 @@
+--- ./app/jni/src/src/pc/controller/controller_sdl2.c	2023-08-15 13:01:31.738517679 +0200
++++ controller_sdl2_mod.c	2023-08-15 13:01:06.448517689 +0200
+@@ -75,6 +75,15 @@
+     }
+ }
+ 
++int GetJoystickNumAxes(int index) {
++    SDL_Joystick *joy = SDL_JoystickOpen(index);
++    int numAxes = SDL_JoystickNumAxes(joy);
++    if (SDL_JoystickGetAttached(joy)) {
++        SDL_JoystickClose(joy);
++    }
++    return numAxes;
++}
++
+ static void controller_sdl_bind(void) {
+     bzero(joy_binds, sizeof(joy_binds));
+     num_joy_binds = 0;
+@@ -245,19 +254,12 @@
+         sdl_haptic = NULL;
+     }
+ 
+-    if (sdl_cntrl == NULL || last_gamepad != configGamepadNumber) {
+-        if (SDL_IsGameController(configGamepadNumber)) {
+-            sdl_cntrl = SDL_GameControllerOpen(configGamepadNumber);
+-            if (sdl_cntrl != NULL) {
+-                sdl_haptic = controller_sdl_init_haptics(configGamepadNumber);
+-                last_gamepad = configGamepadNumber;
++    if (sdl_cntrl == NULL) {
++        for (int i = 0; i < SDL_NumJoysticks(); i++) {
++            if ( (GetJoystickNumAxes(i) > 0) && (SDL_GameControllerNameForIndex(i) != NULL) ) {
++                sdl_cntrl = SDL_GameControllerOpen(i);
++                break;
+             }
+-            if (sdl_cntrl == NULL) {
+-                return;
+-            }
+-        } else {
+-            sdl_cntrl = NULL;
+-            return;
+         }
+     }
+     
