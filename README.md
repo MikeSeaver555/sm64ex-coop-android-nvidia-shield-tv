@@ -1,3 +1,43 @@
+```
+# Personal notes
+
+git clone --recursive https://github.com/MikeSeaver555/sm64ex-coop-android-nvidia-shield-tv.git
+cd sm64ex-coop-android-nvidia-shield-tv/app/jni/src
+
+# In the example baserom.us.z64 is located in a folder named sm64, change the path if it's needed
+cp /storage/emulated/0/sm64/baserom.us.z64 .
+
+# If you're not sure what -j8 means then just type make
+make -j8
+
+
+cd ~/sm64ex-coop-android-nvidia-shield-tv/
+
+# I apply the patch to the file
+patch ./app/jni/src/src/pc/controller/controller_sdl2.c < controller_sdl2.patch
+
+# I create a new file according to the paths where I unzipped SDK and NDK
+
+cat > local.properties << EOF
+sdk.dir=/data/data/com.termux/files/home/android-sdk
+ndk.dir=/data/data/com.termux/files/home/android-ndk-r23c
+EOF
+
+gradle assembleDebug
+
+# After build it fails, I needed to do
+cp ~/android-sdk/build-tools/33.0.0/aapt2 /data/data/com.termux/files/home/.gradle/caches/transforms-3/7764d9ec34208f50a54378e446596e9c/transformed/aapt2-7.3.1-8691043-linux/aapt2
+
+# I execute again: gradle assembleDebug 
+gradle assembleDebug
+
+# Then I copy the apk to the internal storage
+cp ./app/build/outputs/apk/debug/app-debug.apk /storage/emulated/0/app-debug-mod.apk
+
+```
+
+--
+
 # `sm64ex-coop` Android Port
 This is a port of the [`sm64ex-coop` multiplayer mod for Super Mario 64](https://github.com/djoslin0/sm64ex-coop) to Android using SDL2 with OpenGL ES 2.0.
 
